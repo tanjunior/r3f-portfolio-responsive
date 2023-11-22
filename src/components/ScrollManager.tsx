@@ -1,6 +1,6 @@
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { gsap } from "gsap";
+import { animate } from "framer-motion";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 
 export const ScrollManager = ({ section, onSectionChange }: { section: number, onSectionChange: Dispatch<SetStateAction<number>> }) => {
@@ -13,16 +13,19 @@ export const ScrollManager = ({ section, onSectionChange }: { section: number, o
   data.fill.classList.add("absolute");
 
   useEffect(() => {
-    gsap.to(data.el, {
+    const curSection = Math.floor(data.offset* data.pages);
+    animate(curSection * data.el.clientHeight, section * data.el.clientHeight, {
       duration: 1,
-      scrollTop: section * data.el.clientHeight,
-      onStart: () => {
+      onPlay() {
         isAnimating.current = true;
       },
-      onComplete: () => {
+      onComplete() {
         isAnimating.current = false;
       },
-    });
+      onUpdate(latest) {
+        data.el.scrollTop = latest;
+      },
+    })
   }, [section]);
 
   useFrame(() => {
